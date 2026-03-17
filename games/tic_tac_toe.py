@@ -1,94 +1,71 @@
 
 # games/tic_tac_toe.py
-# Player vs AI — AI uses Minimax algorithm
-# Main attribute: intelligence
+import random
 
 def play_tictactoe(contestant):
-    print(f"\n  {'='*50}")
-    print(f"  TIC TAC TOE  —  {contestant.name} vs AI")
-    print(f"  {'='*50}")
-    print("  Tum = X,  AI = O")
-    print("  Positions:\n")
-    print("    1 | 2 | 3")
-    print("    ---------")
-    print("    4 | 5 | 6")
-    print("    ---------")
-    print("    7 | 8 | 9\n")
+    print(f"\n  TIC TAC TOE — {contestant.name} vs AI")
 
     board = [' '] * 9
 
     def draw():
-        print(f"\n    {board[0]} | {board[1]} | {board[2]}")
+        print(f"    {board[0]} | {board[1]} | {board[2]}")
         print("    ---------")
         print(f"    {board[3]} | {board[4]} | {board[5]}")
         print("    ---------")
-        print(f"    {board[6]} | {board[7]} | {board[8]}\n")
+        print(f"    {board[6]} | {board[7]} | {board[8]}")
 
-    def winner(b, m):
-        combos = [(0,1,2),(3,4,5),(6,7,8),
-                  (0,3,6),(1,4,7),(2,5,8),
-                  (0,4,8),(2,4,6)]
-        return any(b[i]==b[j]==b[k]==m for i,j,k in combos)
+    def check_winner(b, m):
+        for i,j,k in [(0,1,2),(3,4,5),(6,7,8),
+                      (0,3,6),(1,4,7),(2,5,8),
+                      (0,4,8),(2,4,6)]:
+            if b[i]==b[j]==b[k]==m:
+                return True
+        return False
 
-    def minimax(b, is_max):
-        if winner(b, 'O'): return  1
-        if winner(b, 'X'): return -1
-        if ' ' not in b:   return  0
-        scores = []
-        for i in range(9):
-            if b[i] == ' ':
-                b[i] = 'O' if is_max else 'X'
-                scores.append(minimax(b, not is_max))
-                b[i] = ' '
-        return max(scores) if is_max else min(scores)
-
-    def ai_best_move(b):
-        best_score, best_pos = -99, 0
-        for i in range(9):
-            if b[i] == ' ':
-                b[i] = 'O'
-                s    = minimax(b, False)
-                b[i] = ' '
-                if s > best_score:
-                    best_score, best_pos = s, i
-        return best_pos
+    def get_move(b, mark):
+        opp = 'O' if mark=='X' else 'X'
+        for i in range(9):           # try to win
+            if b[i]==' ':
+                b[i]=mark
+                if check_winner(b,mark): return i
+                b[i]=' '
+        for i in range(9):           # block opponent
+            if b[i]==' ':
+                b[i]=opp
+                if check_winner(b,opp):
+                    b[i]=' '; return i
+                b[i]=' '
+        if b[4]==' ': return 4       # center
+        for i in [0,2,6,8]:          # corner
+            if b[i]==' ': return i
+        for i in range(9):           # any empty
+            if b[i]==' ': return i
+        return -1
 
     result = "draw"
+
     for turn in range(9):
-        draw()
         if turn % 2 == 0:
-            # Player turn
-            while True:
-                try:
-                    pos = int(input("  Choose position (1-9): ")) - 1
-                    if 0 <= pos <= 8 and board[pos] == ' ':
-                        board[pos] = 'X'
-                        break
-                    print("  Invalid! Choose an empty spot.")
-                except ValueError:
-                    print("  Enter only numbers!")
-            if winner(board, 'X'):
-                draw()
-                print("  Tum jeet gaye!")
-                result = "win"
-                break
+            # Player X
+            if contestant.intelligence >= 60:
+                pos = get_move(board, 'X')    # smart move
+            else:
+                empty = [i for i in range(9) if board[i]==' ']
+                pos   = random.choice(empty) if empty else -1  # random move
         else:
-            # AI turn
-            print("  AI soch raha hai...")
-            board[ai_best_move(board)] = 'O'
-            print("  AI ne move kiya!")
-            if winner(board, 'O'):
-                draw()
-                print("  AI jeet gaya!")
-                result = "loss"
-                break
+            # AI O
+            pos = get_move(board, 'O')        # always smart
 
-    if result == "draw":
-        draw()
-        print("  Draw!")
+        if pos == -1: break
+        board[pos] = 'X' if turn%2==0 else 'O'
 
-    base  = {"win": 100, "draw": 55, "loss": 15}[result]
+        if check_winner(board, 'X'): result="win";  break
+        if check_winner(board, 'O'): result="loss"; break
+
+    draw()
+    print(f"  Result: {result.upper()}")
+    base  = {"win":100, "draw":55, "loss":15}[result]
     bonus = round(contestant.intelligence * 0.2)
     score = min(100, base + bonus)
-    print(f"  Result:{result.upper()}  Base:{base}  Intelligence bonus:+{bonus}  Score:{score}")
+    print(f"  Score: {score}")
     return score
