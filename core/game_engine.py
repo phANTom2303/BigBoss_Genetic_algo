@@ -83,3 +83,5 @@ def run_tournament(contestants, games_list):
     return input("Play again? (y/n): ").strip().lower() == 'y'
 
 run_simulation = run_tournament
+
+
