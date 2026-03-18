@@ -21,9 +21,9 @@ def make_team():
         brain = random.randint(40, 100)
         talk = random.randint(40, 100)
         body = random.randint(40, 100)
-        flex = random.randint(40, 100)
+        adaptibility = random.randint(40, 100)
         
-        player = Contestant(name, brain, talk, body, flex)
+        player = Contestant(name, brain, talk, body, adaptibility)
         player.calculate_popularity()
         team.append(player)
     
