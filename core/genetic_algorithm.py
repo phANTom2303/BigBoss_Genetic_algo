@@ -46,9 +46,9 @@ def add_new_guy(contestants):
     intel = get_int("Smart: ")
     talk  = get_int("Talk: ")
     body  = get_int("Body: ")
-    flex  = get_int("Flex: ")
+    adaptibility = get_int("Adap: ")
     
-    new_guy = Contestant(name, intel, talk, body, flex)
+    new_guy = Contestant(name, intel, talk, body, adaptibility)
     new_guy.calculate_popularity()
     new_guy.is_wildcard = True
     contestants.append(new_guy)
