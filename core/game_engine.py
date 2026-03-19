@@ -20,7 +20,8 @@ def play_round(contestants, game_data, round_num):
 
     for player in active_players:
         print("\n" + "="*25, player.name + "'s turn", "="*25)
-        player.game_score = game_data["fn"](player)
+        game_function = game_data["fn"]
+        player.game_score = game_function(player)
         print(player.name, "scored:", player.game_score)
 
     for player in active_players:
