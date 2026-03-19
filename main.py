@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from utils.helpers import sep
 from contestant import Contestant
 from games import ALL_GAMES
-from core.game_engine import run_tournament as run_simulation
+from core.game_engine import run_tournament
 
 def make_team():
     """Make 20 players"""
@@ -52,7 +52,7 @@ def main():
         players = make_team()
         games = pick_games()
         
-        play_again = run_simulation(players, games)
+        play_again = run_tournament(players, games)
         if not play_again:
             print("Bye!")
             break
