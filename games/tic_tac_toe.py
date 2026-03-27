@@ -5,8 +5,8 @@ import random
 SIZE = 5
 
 
-def play_tictactoe(contestant):
-    print(f"\n  TIC TAC TOE 5x5 — {contestant.name} vs AI")
+def play_tictactoe(player1, player2):
+    print(f"\n  TIC TAC TOE 5x5 — {player1.name} (X) vs {player2.name} (O)")
 
     board = [' '] * (SIZE * SIZE)
 
@@ -32,11 +32,9 @@ def play_tictactoe(contestant):
             if all(b[r*SIZE + c] == mark for r in range(SIZE)):
                 return True
 
-        # diagonal \
+        # diagonals
         if all(b[i*SIZE + i] == mark for i in range(SIZE)):
             return True
-
-        # diagonal /
         if all(b[i*SIZE + (SIZE-1-i)] == mark for i in range(SIZE)):
             return True
 
@@ -45,7 +43,7 @@ def play_tictactoe(contestant):
     def is_full(b):
         return all(x != ' ' for x in b)
 
-    # ---------- INTELLIGENCE → DEPTH ----------
+    # ---------- DEPTH ----------
     def get_depth(intelligence):
         if intelligence >= 80: return 4
         if intelligence >= 60: return 3
@@ -54,55 +52,47 @@ def play_tictactoe(contestant):
 
     # ---------- EVALUATION ----------
     def evaluate(b):
-        if check_winner(b, 'X'):
-            return 100
-        if check_winner(b, 'O'):
-            return -100
+        if check_winner(b, 'X'): return 100
+        if check_winner(b, 'O'): return -100
         return 0
 
     # ---------- MINIMAX ----------
-    def minimax(b, depth, is_max, alpha, beta):
+    def minimax(b, depth, is_max):
         score = evaluate(b)
 
         if abs(score) == 100 or depth == 0 or is_full(b):
             return score
 
         if is_max:
-            best = -float('inf')
+            best = -999
             for i in range(SIZE * SIZE):
                 if b[i] == ' ':
                     b[i] = 'X'
-                    val = minimax(b, depth - 1, False, alpha, beta)
+                    val = minimax(b, depth - 1, False)
                     b[i] = ' '
                     best = max(best, val)
-                    alpha = max(alpha, best)
-                    if beta <= alpha:
-                        break
             return best
         else:
-            best = float('inf')
+            best = 999
             for i in range(SIZE * SIZE):
                 if b[i] == ' ':
                     b[i] = 'O'
-                    val = minimax(b, depth - 1, True, alpha, beta)
+                    val = minimax(b, depth - 1, True)
                     b[i] = ' '
                     best = min(best, val)
-                    beta = min(beta, best)
-                    if beta <= alpha:
-                        break
             return best
 
     # ---------- BEST MOVE ----------
     def get_best_move(b, intelligence, mark):
         depth = get_depth(intelligence)
 
-        best_val = -float('inf') if mark == 'X' else float('inf')
+        best_val = -999 if mark == 'X' else 999
         best_move = -1
 
         for i in range(SIZE * SIZE):
             if b[i] == ' ':
                 b[i] = mark
-                val = minimax(b, depth - 1, mark != 'X', -float('inf'), float('inf'))
+                val = minimax(b, depth - 1, mark != 'X')
                 b[i] = ' '
 
                 if mark == 'X':
@@ -117,45 +107,46 @@ def play_tictactoe(contestant):
         return best_move
 
     # ---------- GAME LOOP ----------
-    result = "draw"
+    players = [(player1, 'X'), (player2, 'O')]
+    winner = None
 
     for turn in range(SIZE * SIZE):
+        player, mark = players[turn % 2]
 
-        if turn % 2 == 0:
-            # 🎯 Contestant
-            if random.random() < 0.85:
-                pos = get_best_move(board, contestant.intelligence, 'X')
-            else:
-                empty = [i for i in range(SIZE * SIZE) if board[i] == ' ']
-                pos = random.choice(empty) if empty else -1
-
+        # 🔥 mix intelligence + randomness
+        if random.random() < 0.85:
+            pos = get_best_move(board, player.intelligence, mark)
         else:
-            # 🤖 AI (medium level)
-            if random.random() < 0.9:
-                pos = get_best_move(board, 65, 'O')
-            else:
-                empty = [i for i in range(SIZE * SIZE) if board[i] == ' ']
-                pos = random.choice(empty) if empty else -1
+            empty = [i for i in range(SIZE * SIZE) if board[i] == ' ']
+            pos = random.choice(empty) if empty else -1
 
         if pos == -1:
             break
 
-        board[pos] = 'X' if turn % 2 == 0 else 'O'
+        board[pos] = mark
 
-        if check_winner(board, 'X'):
-            result = "win"
-            break
-
-        if check_winner(board, 'O'):
-            result = "loss"
+        if check_winner(board, mark):
+            winner = player
             break
 
     # ---------- RESULT ----------
     draw()
-    print(f"  Result: {result.upper()}")
 
-    base = {"win": 100, "draw": 60, "loss": 20}[result]
-    score = max(0, min(100, base - random.randint(0, 15)))
+    if winner is None:
+        print("  Result: DRAW")
+        score1, score2 = 60, 60
+    else:
+        print(f"  Winner: {winner.name}")
+        if winner == player1:
+            score1, score2 = 100, 20
+        else:
+            score1, score2 = 20, 100
 
-    print(f"  Score: {score}")
-    return score
+    # slight randomness
+    score1 = max(0, min(100, score1 - random.randint(0, 10)))
+    score2 = max(0, min(100, score2 - random.randint(0, 10)))
+
+    print(f"  {player1.name} Score: {score1}")
+    print(f"  {player2.name} Score: {score2}")
+
+    return [(player1, score1), (player2, score2)]
