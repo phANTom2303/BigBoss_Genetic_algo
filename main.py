@@ -56,6 +56,8 @@ def main():
         if not play_again:
             print("Bye!")
             break
+def get_initial_players():
+    return make_team()
 
 if __name__ == "__main__":
     main()

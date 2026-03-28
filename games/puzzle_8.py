@@ -110,7 +110,7 @@ def play_8puzzle(contestant):
         print(f"  {contestant.name} is under pressure. Using Best-First...")
 
     moves = solve_puzzle(tiles, use_astar)
-
+    print(moves)
     move_count = len(moves)
     print(f"  Solved in {move_count} moves.")
 
@@ -122,4 +122,8 @@ def play_8puzzle(contestant):
     print(f"  Efficiency Score: {round(base)} | Bonus: +{bonus}")
     print(f"  TOTAL ROUND SCORE: {final_score}")
 
-    return final_score
+    return {"moves": moves,
+            "score":final_score,
+            "steps":move_count
+    }
+

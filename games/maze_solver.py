@@ -57,7 +57,7 @@ def play_maze(contestant):
         score = 10 + explored // 2 #reward the effort
 
     print(f"  FINAL SCORE: {round(score)}")
-    return round(score)
+    return round(score), path, use_bfs
 
 
 def maze_engine(use_bfs, stamina):

@@ -1,6 +1,4 @@
 # games/dfs_maze.py
-# DFS explores path automatically
-# Main attribute: adaptability
 
 MAZE = [
     [1,1,0,1,1,1],
@@ -10,27 +8,26 @@ MAZE = [
     [1,1,1,0,0,1],
     [1,0,1,1,1,1],
 ]
-ROWS, COLS = 6, 6
 
-# Fixed start and end — no user input needed
+ROWS, COLS = 6, 6
 START = (0, 0)
 END   = (5, 5)
 
 def play_dfs(contestant):
-    print(f"\n  DFS MAZE — {contestant.name}")
-    print(f"  Start:{START} → End:{END}")
-    print("  DFS exploring path...\n")
 
     stack    = [(START, [START])]
     visited  = set()
-    explored = 0
+    explored = []
     path     = None
 
     while stack:
         (r,c), curr_path = stack.pop()
-        if (r,c) in visited: continue
+
+        if (r,c) in visited:
+            continue
+
         visited.add((r,c))
-        explored += 1
+        explored.append((r, c))
 
         if (r,c) == END:
             path = curr_path
@@ -42,22 +39,17 @@ def play_dfs(contestant):
                 stack.append(((nr,nc), curr_path+[(nr,nc)]))
 
     if path:
-        print(f"  Path found! Length:{len(path)} steps  Explored:{explored} nodes")
-        for r in range(ROWS):
-            row = "  "
-            for c in range(COLS):
-                if   (r,c)==START:      row+="[S]"
-                elif (r,c)==END:        row+="[E]"
-                elif (r,c) in path:     row+="[P]"
-                elif MAZE[r][c]==0:     row+="[#]"
-                else:                   row+="[.]"
-            print(row)
-        base = max(20, 100 - explored//3)
+        base = max(20, 100 -len(explored)//3)
     else:
-        print("  No path found!")
         base = 10
+        path = []
 
     bonus = round(contestant.adaptability * 0.3)
     score = min(100, base + bonus)
-    print(f"  Base:{base}  Adaptability bonus:+{bonus}  Score:{score}")
-    return score
+
+    return {
+    "score": score,
+    "path": path if path else [],
+    "explored": explored,
+    "strategy": "dfs"
+}
