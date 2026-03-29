@@ -7,6 +7,36 @@ from genetic_algorithm import select_top, mutate, add_wildcard
 from streamlit_games.game_router import run_game_visual
 
 
+
+#  PvP handler
+def play_pvp_round(active_players, game_function):
+    import random
+
+    print("\n⚔️ PLAYER vs PLAYER MATCHES\n")
+
+    random.shuffle(active_players)
+
+    for i in range(0, len(active_players), 2):
+
+        if i + 1 >= len(active_players):
+            p = active_players[i]
+            p.game_score = random.randint(40, 70)
+            print(f"{p.name} gets a bye. Score: {p.game_score}")
+            continue
+
+        p1 = active_players[i]
+        p2 = active_players[i+1]
+
+        print("\n" + "="*20 + f" {p1.name} vs {p2.name} " + "="*20)
+
+        results = game_function(p1, p2)
+
+        for player, score in results:
+            player.game_score = score
+            print(f"{player.name} scored: {score}")
+
+
+#  MAIN ROUND FUNCTION
 def play_round(contestants, game_data, round_num):
 
     active_players = [p for p in contestants if p.alive]
@@ -19,6 +49,7 @@ def play_round(contestants, game_data, round_num):
         "eliminated": []
     }
 
+<<<<<<< HEAD
     # 🎮 Play game for each player
     for player in active_players:
 
@@ -31,6 +62,23 @@ def play_round(contestants, game_data, round_num):
             score = result or 0
 
         player.game_score = score
+=======
+    game_function = game_data["fn"]
+
+    # PvP game
+    if game_data["name"] == "Tic Tac Toe":
+        play_pvp_round(active_players, game_function)
+
+    # 🎮 Normal games
+    else:
+        for player in active_players:
+            print("\n" + "="*25, player.name + "'s turn", "="*25)
+            player.game_score = game_function(player)
+            print(player.name, "scored:", player.game_score)
+
+    #  COMMON (for ALL games)
+    for player in active_players:
+>>>>>>> ffbedf8a33b522e92d8efef54dd8209d9040ce90
         player.calculate_popularity()
 
         # 📦 store player data
@@ -52,6 +100,8 @@ def play_round(contestants, game_data, round_num):
     return round_info
 
 
+
+#  TOURNAMENT LOOP
 def run_tournament(contestants, games_list):
 
     print("\nSTARTING LINEUP")
@@ -92,5 +142,8 @@ def run_tournament(contestants, games_list):
     return input("Play again? (y/n): ").strip().lower() == 'y'
 
 
+<<<<<<< HEAD
 # alias
+=======
+>>>>>>> ffbedf8a33b522e92d8efef54dd8209d9040ce90
 run_simulation = run_tournament
